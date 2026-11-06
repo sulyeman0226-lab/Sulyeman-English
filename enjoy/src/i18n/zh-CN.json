@@ -941,5 +941,17 @@
   "checkingForUpdate": "正在检查更新",
   "updateAvailable": "有新版本",
   "quitAndInstall": "退出并安装新版本",
-  "pleaseSelect": "请选择"
+  "pleaseSelect": "请选择",
+  "localMode": "本地模式（不用 Enjoy 账号）",
+  "localModeDescription": "完全不连接 Enjoy 服务器。发音评估、语音合成和语音转文本用你自己的 Azure 语音 Key，AI 功能用你自己的 OpenAI 兼容 Key。社区、余额和云同步不可用。切换后应用会重新加载。",
+  "azureSpeechDescription": "你自己的 Azure 语音 Key。填写后，发音评估、Azure 语音合成和 Azure 语音转文本都直接用它，不再经过 Enjoy 服务器。",
+  "azureRegion": "区域",
+  "azureRegionDescription": "语音资源所在的区域，例如 eastasia、southeastasia、eastus。",
+  "azureSpeechInUse": "已启用：发音评估和 Azure 语音服务使用你自己的 Key。",
+  "azureSpeechNotConfigured": "未设置：Azure 语音服务会经过 Enjoy 服务器（本地模式下不可用）。",
+  "azureSpeechKeyInvalid": "Azure 语音 Key 校验失败：{{error}}",
+  "azureSpeechConfigSaved": "Azure 语音设置已保存",
+  "azureSpeechTesting": "校验中...",
+  "useLocalModeWithoutLogin": "不登录，使用本地模式",
+  "useLocalModeWithoutLoginDescription": "使用你自己的 Azure 语音和 OpenAI 兼容 Key，不向 Enjoy 服务器发送任何数据。"
 }

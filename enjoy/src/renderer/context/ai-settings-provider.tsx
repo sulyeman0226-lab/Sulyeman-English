@@ -35,8 +35,15 @@ export const AISettingsProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const { EnjoyApp, libraryPath, user, apiUrl, webApi, learningLanguage } =
-    useContext(AppSettingsProviderContext);
+  const {
+    EnjoyApp,
+    libraryPath,
+    user,
+    apiUrl,
+    webApi,
+    learningLanguage,
+    localMode,
+  } = useContext(AppSettingsProviderContext);
   const [gptProviders, setGptProviders] = useState<any>(GPT_PROVIDERS);
   const [ttsProviders, setTtsProviders] = useState<any>(TTS_PROVIDERS);
   const db = useContext(DbProviderContext);
@@ -59,6 +66,7 @@ export const AISettingsProvider = ({
     let providers = GPT_PROVIDERS;
 
     try {
+      if (localMode) throw new Error("local mode");
       const config = await webApi.config("gpt_providers");
       providers = Object.assign(providers, config);
     } catch (e) {
@@ -85,6 +93,7 @@ export const AISettingsProvider = ({
     let providers = TTS_PROVIDERS;
 
     try {
+      if (localMode) throw new Error("local mode");
       const config = await webApi.config("tts_providers_v2");
       providers = Object.assign(providers, config);
     } catch (e) {
@@ -256,10 +265,11 @@ export const AISettingsProvider = ({
             });
         },
         currentGptEngine:
-          gptEngine.name === "openai"
+          // In local mode EnjoyAI is unavailable, so always use own OpenAI-compatible key
+          gptEngine.name === "openai" || (localMode && openai?.key)
             ? Object.assign(gptEngine, {
-                key: openai.key,
-                baseUrl: openai.baseUrl,
+                key: openai?.key,
+                baseUrl: openai?.baseUrl,
               })
             : Object.assign(gptEngine, {
                 key: user?.accessToken,

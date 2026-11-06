@@ -165,6 +165,14 @@ type EnjoyAppType = {
     getApiUrl: () => Promise<string>;
     setApiUrl: (url: string) => Promise<void>;
     getSessions: () => Promise<{ id: string }[]>;
+    getLocalMode: () => Promise<boolean>;
+    setLocalMode: (enabled: boolean) => Promise<void>;
+  };
+  azureSpeech: {
+    issueToken: (
+      key: string,
+      region: string
+    ) => Promise<{ token: string; region: string }>;
   };
   userSettings: {
     get: (key: UserSettingKeyEnum) => Promise<any>;

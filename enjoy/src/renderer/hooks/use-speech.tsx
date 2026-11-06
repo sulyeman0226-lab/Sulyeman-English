@@ -8,9 +8,8 @@ import * as sdk from "microsoft-cognitiveservices-speech-sdk";
 import { t } from "i18next";
 
 export const useSpeech = () => {
-  const { EnjoyApp, webApi, user, apiUrl, learningLanguage } = useContext(
-    AppSettingsProviderContext
-  );
+  const { EnjoyApp, webApi, user, apiUrl, learningLanguage, localMode } =
+    useContext(AppSettingsProviderContext);
   const { openai, ttsConfig } = useContext(AISettingsProviderContext);
 
   const tts = async (params: Partial<SpeechType>) => {
@@ -55,7 +54,7 @@ export const useSpeech = () => {
 
     let client: OpenAI;
 
-    if (engine === "enjoyai") {
+    if (engine === "enjoyai" && !localMode) {
       client = new OpenAI({
         apiKey: user.accessToken,
         baseURL: `${apiUrl}/api/ai`,

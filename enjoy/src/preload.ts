@@ -260,6 +260,11 @@ contextBridge.exposeInMainWorld("__ENJOY_APP__", {
     showErrorBox: (title: string, content: string) =>
       ipcRenderer.invoke("dialog-show-error-box", title, content),
   },
+  azureSpeech: {
+    issueToken: (key: string, region: string) => {
+      return ipcRenderer.invoke("azure-speech-issue-token", key, region);
+    },
+  },
   appSettings: {
     get: (key: string) => {
       return ipcRenderer.invoke("app-settings-get", key);
@@ -287,6 +292,12 @@ contextBridge.exposeInMainWorld("__ENJOY_APP__", {
     },
     getApiUrl: () => {
       return ipcRenderer.invoke("app-settings-get-api-url");
+    },
+    getLocalMode: () => {
+      return ipcRenderer.invoke("app-settings-get-local-mode");
+    },
+    setLocalMode: (enabled: boolean) => {
+      return ipcRenderer.invoke("app-settings-set-local-mode", enabled);
     },
     setApiUrl: (url: string) => {
       return ipcRenderer.invoke("app-settings-set-api-url", url);

@@ -22,6 +22,8 @@ import {
   VocabularySettings,
   DictSettings,
   DiskUsage,
+  LocalModeSettings,
+  AzureSpeechSettings,
 } from "@renderer/components";
 import { useState } from "react";
 import { Tooltip } from "react-tooltip";
@@ -37,6 +39,12 @@ export const Preferences = () => {
           <div className="font-semibold mb-4 capitilized">
             {t("basicSettings")}
           </div>
+          <LocalModeSettings />
+          <Separator />
+          <AzureSpeechSettings />
+          <Separator />
+          <OpenaiSettings />
+          <Separator />
           <NativeLanguageSettings />
           <Separator />
           <LearningLanguageSettings />
@@ -78,8 +86,6 @@ export const Preferences = () => {
           <ProxySettings />
           <Separator />
           <NetworkState />
-          <Separator />
-          <OpenaiSettings />
           <Separator />
           <RecorderSettings />
           <Separator />

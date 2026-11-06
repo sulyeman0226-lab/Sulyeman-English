@@ -13,6 +13,7 @@ export enum UserSettingKeyEnum {
   DICTS = "dicts",
   RECORDER = "recorder",
   ECHOGARDEN = "echogarden",
+  AZURE_SPEECH = "azure_speech",
 }
 
 export enum SttEngineOptionEnum {
@@ -26,6 +27,7 @@ export enum AppSettingsKeyEnum {
   LIBRARY = "library",
   USER = "user",
   API_URL = "api_url",
+  LOCAL_MODE = "local_mode",
 }
 
 export enum ChatTypeEnum {

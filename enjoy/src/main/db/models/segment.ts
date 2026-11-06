@@ -119,6 +119,7 @@ export class Segment extends Model<Segment> {
 
     const webApi = new Client({
       baseUrl: settings.apiUrl(),
+      offline: settings.localMode(),
       accessToken: (await UserSetting.accessToken()) as string,
       logger,
     });

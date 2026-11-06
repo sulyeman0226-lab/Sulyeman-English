@@ -178,6 +178,11 @@ type TedIdeaType = {
   description: string;
 };
 
+type AzureSpeechConfigType = {
+  key: string;
+  region: string;
+};
+
 type ProxyConfigType = {
   enabled: boolean;
   url: string;
