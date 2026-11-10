@@ -1,4 +1,5 @@
 export * from "./audios";
+export * from "./books";
 export * from "./chats";
 export * from "./conversations";
 export * from "./copilots";

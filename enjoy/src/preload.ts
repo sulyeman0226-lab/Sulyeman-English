@@ -260,6 +260,17 @@ contextBridge.exposeInMainWorld("__ENJOY_APP__", {
     showErrorBox: (title: string, content: string) =>
       ipcRenderer.invoke("dialog-show-error-box", title, content),
   },
+  books: {
+    splitEpub: (filePath: string, options?: { level?: number }) => {
+      return ipcRenderer.invoke("books-split-epub", filePath, options);
+    },
+    listAudioFiles: (dir: string) => {
+      return ipcRenderer.invoke("books-list-audio-files", dir);
+    },
+    readTextFolder: (dir: string) => {
+      return ipcRenderer.invoke("books-read-text-folder", dir);
+    },
+  },
   azureSpeech: {
     issueToken: (key: string, region: string) => {
       return ipcRenderer.invoke("azure-speech-issue-token", key, region);

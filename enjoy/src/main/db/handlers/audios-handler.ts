@@ -98,14 +98,27 @@ class AudiosHandler {
       // create transcription if originalText is provided
       const { originalText } = params;
       if (originalText) {
-        await Transcription.create({
-          targetType: "Audio",
-          targetId: audio.id,
-          targetMd5: audio.md5,
-          result: {
-            originalText,
+        // The file may already be in the library with a transcription
+        const [transcription, created] = await Transcription.findOrCreate({
+          where: { targetType: "Audio", targetId: audio.id },
+          defaults: {
+            targetType: "Audio",
+            targetId: audio.id,
+            targetMd5: audio.md5,
+            result: {
+              originalText,
+            },
           },
         });
+        if (
+          !created &&
+          !transcription.result?.timeline &&
+          transcription.result?.originalText !== originalText
+        ) {
+          await transcription.update({
+            result: { ...(transcription.result || {}), originalText },
+          });
+        }
       }
 
       return audio.toJSON();

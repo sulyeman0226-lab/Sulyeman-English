@@ -14,6 +14,7 @@ export enum UserSettingKeyEnum {
   RECORDER = "recorder",
   ECHOGARDEN = "echogarden",
   AZURE_SPEECH = "azure_speech",
+  BOOK_PROGRESS = "book_progress",
 }
 
 export enum SttEngineOptionEnum {

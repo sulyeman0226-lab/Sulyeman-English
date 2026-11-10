@@ -26,6 +26,7 @@ import dict from "./dict";
 import mdict from "./mdict";
 import decompresser from "./decompresser";
 import azureSpeechToken from "./azure-speech-token";
+import bookImporter from "./book-importer";
 import { UserSetting } from "@main/db/models";
 import { t } from "i18next";
 import { format } from "util";
@@ -94,6 +95,9 @@ main.init = async () => {
 
   // Own Azure Speech key
   azureSpeechToken.registerIpcHandlers();
+
+  // Import a whole audiobook (EPUB / txt folder + audio folder)
+  bookImporter.registerIpcHandlers();
 
   // ffmpeg
   ffmpeg.registerIpcHandlers();

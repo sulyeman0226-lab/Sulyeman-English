@@ -168,6 +168,14 @@ type EnjoyAppType = {
     getLocalMode: () => Promise<boolean>;
     setLocalMode: (enabled: boolean) => Promise<void>;
   };
+  books: {
+    splitEpub: (
+      filePath: string,
+      options?: { level?: number }
+    ) => Promise<{ title: string; maxDepth: number; chapters: BookChapterType[] }>;
+    listAudioFiles: (dir: string) => Promise<{ name: string; path: string }[]>;
+    readTextFolder: (dir: string) => Promise<BookChapterType[]>;
+  };
   azureSpeech: {
     issueToken: (
       key: string,

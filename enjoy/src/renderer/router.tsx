@@ -8,6 +8,8 @@ import Landing from "./pages/landing";
 import Audio from "./pages/audio";
 import Video from "./pages/video";
 import Audios from "./pages/audios";
+import Books from "./pages/books";
+import Book from "./pages/book";
 import Videos from "./pages/videos";
 import Stories from "./pages/stories";
 import Story from "./pages/story";
@@ -143,6 +145,22 @@ export default createHashRouter([
         element: (
           <ProtectedPage>
             <Audios />
+          </ProtectedPage>
+        ),
+      },
+      {
+        path: "/books",
+        element: (
+          <ProtectedPage>
+            <Books />
+          </ProtectedPage>
+        ),
+      },
+      {
+        path: "/books/:id",
+        element: (
+          <ProtectedPage>
+            <Book />
           </ProtectedPage>
         ),
       },
