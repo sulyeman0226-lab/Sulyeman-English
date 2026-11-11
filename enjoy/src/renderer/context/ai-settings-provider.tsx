@@ -270,6 +270,17 @@ export const AISettingsProvider = ({
             ? Object.assign(gptEngine, {
                 key: openai?.key,
                 baseUrl: openai?.baseUrl,
+                // EnjoyAI model names (e.g. gpt-4o) mean nothing to other
+                // providers: fall back to the first custom model
+                ...(gptEngine.name !== "openai" &&
+                openai?.models?.split(",")?.[0]?.trim()
+                  ? {
+                      models: {
+                        ...gptEngine.models,
+                        default: openai.models.split(",")[0].trim(),
+                      },
+                    }
+                  : {}),
               })
             : Object.assign(gptEngine, {
                 key: user?.accessToken,
