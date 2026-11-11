@@ -188,6 +188,9 @@ export const BookImportDialog = (props: {
           originalText: chapter.text,
           // Audiobook files are already compressed; keep them as they are
           compressing: false,
+          // Chapters transcribed earlier by speech-to-text get re-aligned
+          // from the book text, which has no recognition errors
+          replaceTranscription: true,
         });
 
         const book: BookMetaType = {

@@ -70,6 +70,9 @@ class AudiosHandler {
       coverUrl?: string;
       originalText?: string;
       compressing?: boolean;
+      // Replace an existing (e.g. speech-to-text) transcription with the
+      // original text, so it is re-aligned from the exact text when opened
+      replaceTranscription?: boolean;
     } = {}
   ) {
     logger.info("Creating audio...", { uri, params });
@@ -110,14 +113,23 @@ class AudiosHandler {
             },
           },
         });
-        if (
-          !created &&
-          !transcription.result?.timeline &&
-          transcription.result?.originalText !== originalText
-        ) {
-          await transcription.update({
-            result: { ...(transcription.result || {}), originalText },
-          });
+        if (!created && transcription.result?.originalText !== originalText) {
+          if (!transcription.result?.timeline) {
+            await transcription.update({
+              result: { ...(transcription.result || {}), originalText },
+            });
+          } else if (params.replaceTranscription) {
+            logger.info("Replacing transcription with original text", {
+              audioId: audio.id,
+              engine: transcription.engine,
+            });
+            await transcription.update({
+              state: "pending",
+              engine: null,
+              model: null,
+              result: { originalText },
+            });
+          }
         }
       }
 
