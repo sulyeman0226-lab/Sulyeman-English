@@ -817,7 +817,7 @@ ${log}
 
   const menuTemplate: MenuItemConstructorOptions[] = [
     {
-      label: app.name,
+      label: "Sulyeman English",
       submenu: [
         { role: "about" },
         { type: "separator" },

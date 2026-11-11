@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+<defs>
+<linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFB547"/><stop offset="1" stop-color="#E8502E"/></linearGradient>
+<filter id="sh" x="-10%" y="-10%" width="120%" height="125%"><feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#000" flood-opacity="0.28"/></filter>
+</defs>
+<rect x="100" y="100" width="824" height="824" rx="186" fill="url(#bg)" filter="url(#sh)"/>
+<g fill="none" stroke="#fff" stroke-width="34" stroke-linecap="round" stroke-linejoin="round">
+<path d="M512 690 C440 640 330 630 250 650 L250 410 C330 390 440 400 512 450 C584 400 694 390 774 410 L774 650 C694 630 584 640 512 690 Z"/>
+<path d="M512 450 L512 690"/>
+</g>
+<g fill="#fff">
+<rect x="340" y="290" width="34" height="80" rx="17"/>
+<rect x="405" y="240" width="34" height="150" rx="17"/>
+<rect x="495" y="190" width="34" height="230" rx="17"/>
+<rect x="585" y="240" width="34" height="150" rx="17"/>
+<rect x="650" y="290" width="34" height="80" rx="17"/>
+</g>
+<g stroke="#fff" stroke-width="18" stroke-linecap="round" opacity="0.75">
+<path d="M310 500 L450 520"/><path d="M310 560 L450 580"/>
+<path d="M574 520 L714 500"/><path d="M574 580 L714 560"/>
+</g>
+</svg>

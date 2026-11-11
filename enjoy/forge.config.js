@@ -11,8 +11,13 @@ const config = {
       unpackDir: `{.vite/build/lib,.vite/build/samples,node_modules/ffmpeg-static,node_modules/@andrkrn/ffprobe-static,node_modules/onnxruntime-node/bin/napi-v3/${os.platform()}/${os.arch()},lib/dictionaries}`,
     },
     icon: "./assets/icon",
-    name: "Enjoy",
-    executableName: "enjoy",
+    // Own name and bundle id so macOS treats it as a separate app from the
+    // official Enjoy (Dock, Launchpad, privacy permissions).
+    // package.json productName stays "Enjoy", so the app keeps using the same
+    // settings (~/Library/Application Support/Enjoy) and EnjoyLibrary.
+    name: "Sulyeman English",
+    appBundleId: "com.sulyeman.english",
+    executableName: "sulyeman-english",
     protocols: [
       {
         name: "Enjoy",
