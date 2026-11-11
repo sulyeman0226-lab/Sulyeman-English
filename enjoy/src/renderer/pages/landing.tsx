@@ -9,7 +9,9 @@ import {
 } from "@renderer/context";
 
 export default () => {
-  const { initialized, user } = useContext(AppSettingsProviderContext);
+  const { initialized, user, loginLocally } = useContext(
+    AppSettingsProviderContext
+  );
   const [started, setStarted] = useState(false);
   const db = useContext(DbProviderContext);
 
@@ -36,7 +38,7 @@ export default () => {
       >
         <div className="text-center">
           <div className="text-lg mb-6">
-            {t("welcomeTo")} <span className="font-semibold">Enjoy App</span>
+            {t("welcomeTo")} <span className="font-semibold">Sulyeman English</span>
           </div>
 
           <div className="">
@@ -57,6 +59,14 @@ export default () => {
       </div>
       <div className="flex-1 flex justify-center">
         <LoginForm />
+      </div>
+      <div className="text-center pb-4">
+        <Button variant="outline" onClick={() => loginLocally()}>
+          {t("useLocalModeWithoutLogin")}
+        </Button>
+        <div className="text-xs opacity-70 mt-2">
+          {t("useLocalModeWithoutLoginDescription")}
+        </div>
       </div>
     </div>
   );

@@ -132,6 +132,7 @@ export class Document extends Model<Document> {
 
     const webApi = new Client({
       baseUrl: settings.apiUrl(),
+      offline: settings.localMode(),
       accessToken: (await UserSetting.accessToken()) as string,
       logger,
     });
@@ -214,6 +215,7 @@ export class Document extends Model<Document> {
   static async destroyRemote(document: Document) {
     const webApi = new Client({
       baseUrl: settings.apiUrl(),
+      offline: settings.localMode(),
       accessToken: (await UserSetting.accessToken()) as string,
       logger,
     });

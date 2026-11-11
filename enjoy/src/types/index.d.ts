@@ -178,6 +178,26 @@ type TedIdeaType = {
   description: string;
 };
 
+type BookChapterType = {
+  title: string;
+  text: string;
+  words: number;
+};
+
+// Stored in audio.metadata.book for audios imported as a book chapter
+type BookMetaType = {
+  id: string;
+  title: string;
+  index: number; // 0-based chapter index
+  total: number;
+  chapterTitle: string;
+};
+
+type AzureSpeechConfigType = {
+  key: string;
+  region: string;
+};
+
 type ProxyConfigType = {
   enabled: boolean;
   url: string;

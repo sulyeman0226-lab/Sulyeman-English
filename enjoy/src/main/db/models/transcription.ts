@@ -89,6 +89,7 @@ export class Transcription extends Model<Transcription> {
 
     const webApi = new Client({
       baseUrl: settings.apiUrl(),
+      offline: settings.localMode(),
       accessToken: (await UserSetting.accessToken()) as string,
       logger,
     });

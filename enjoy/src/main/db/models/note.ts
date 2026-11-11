@@ -61,6 +61,7 @@ export class Note extends Model<Note> {
 
     const webApi = new Client({
       baseUrl: settings.apiUrl(),
+      offline: settings.localMode(),
       accessToken: (await UserSetting.accessToken()) as string,
       logger,
     });
@@ -123,6 +124,7 @@ export class Note extends Model<Note> {
   static async destroyRemote(note: Note) {
     const webApi = new Client({
       baseUrl: settings.apiUrl(),
+      offline: settings.localMode(),
       accessToken: (await UserSetting.accessToken()) as string,
       logger,
     });

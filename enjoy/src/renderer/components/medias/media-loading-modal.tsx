@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useEffect, useRef } from "react";
 import { MediaShadowProviderContext } from "@renderer/context";
 import {
   AlertDialog,
@@ -48,6 +48,27 @@ const LoadingContent = () => {
     generateTranscription,
     onCancel,
   } = useContext(MediaShadowProviderContext);
+
+  /*
+   * Chapters imported with their original text (e.g. from a book) only need
+   * the text aligned to the audio: start it automatically, once.
+   */
+  const autoAligned = useRef(false);
+  const pendingOriginalText =
+    decoded && transcription && !transcription.result?.timeline
+      ? transcription.result?.originalText
+      : null;
+  useEffect(() => {
+    if (!pendingOriginalText) return;
+    if (transcribing || autoAligned.current) return;
+
+    autoAligned.current = true;
+    generateTranscription({
+      originalText: pendingOriginalText,
+      service: "upload",
+    });
+  }, [pendingOriginalText, transcribing]);
+
   if (decoded) {
     // Decoded and transcription created but not ready
     if (transcription && !transcription.result?.timeline) {

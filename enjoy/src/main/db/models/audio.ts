@@ -232,6 +232,7 @@ export class Audio extends Model<Audio> {
 
     const webApi = new Client({
       baseUrl: settings.apiUrl(),
+      offline: settings.localMode(),
       accessToken: (await UserSetting.accessToken()) as string,
       logger: log.scope("audio/sync"),
     });
@@ -301,6 +302,7 @@ export class Audio extends Model<Audio> {
 
     const webApi = new Client({
       baseUrl: settings.apiUrl(),
+      offline: settings.localMode(),
       accessToken: (await UserSetting.accessToken()) as string,
       logger: log.scope("audio/cleanupFile"),
     });

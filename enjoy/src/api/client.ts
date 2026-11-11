@@ -4,10 +4,22 @@ import camelcaseKeys from "camelcase-keys";
 
 const ONE_MINUTE = 1000 * 60; // 1 minute
 
+export const OFFLINE_ERROR_MESSAGE =
+  "Local mode: requests to the Enjoy server are disabled";
+
+export type SpeechTokenProvider = () => Promise<{
+  token: string;
+  region: string;
+}>;
+
 export class Client {
   public api: AxiosInstance;
   public baseUrl: string;
   public logger: any;
+  // Local mode: never talk to the Enjoy server.
+  public offline: boolean;
+  // Issue Azure speech tokens with the user's own key instead of the Enjoy server.
+  public speechTokenProvider?: SpeechTokenProvider;
 
   constructor(options: {
     baseUrl: string;
@@ -16,6 +28,8 @@ export class Client {
     locale?: "en" | "zh-CN";
     onError?: (err: any) => void;
     onSuccess?: (res: any) => void;
+    offline?: boolean;
+    speechTokenProvider?: SpeechTokenProvider;
   }) {
     const {
       baseUrl,
@@ -24,9 +38,13 @@ export class Client {
       locale = "en",
       onError,
       onSuccess,
+      offline = false,
+      speechTokenProvider,
     } = options;
     this.baseUrl = baseUrl;
     this.logger = logger || console;
+    this.offline = offline;
+    this.speechTokenProvider = speechTokenProvider;
 
     this.api = axios.create({
       baseURL: baseUrl,
@@ -36,6 +54,10 @@ export class Client {
       },
     });
     this.api.interceptors.request.use((config) => {
+      if (this.offline) {
+        throw new Error(OFFLINE_ERROR_MESSAGE);
+      }
+
       config.headers.Authorization = `Bearer ${accessToken}`;
       config.headers["Accept-Language"] = locale;
 
@@ -283,46 +305,56 @@ export class Client {
   }
 
   syncAudio(audio: Partial<AudioType>) {
+    if (this.offline) return Promise.resolve(null);
     return this.api.post("/api/mine/audios", decamelizeKeys(audio));
   }
 
   deleteAudio(id: string) {
+    if (this.offline) return Promise.resolve(null);
     return this.api.delete(`/api/mine/audios/${id}`);
   }
 
   syncVideo(video: Partial<VideoType>) {
+    if (this.offline) return Promise.resolve(null);
     return this.api.post("/api/mine/videos", decamelizeKeys(video));
   }
 
   deleteVideo(id: string) {
+    if (this.offline) return Promise.resolve(null);
     return this.api.delete(`/api/mine/videos/${id}`);
   }
 
   syncTranscription(transcription: Partial<TranscriptionType>) {
+    if (this.offline) return Promise.resolve(null);
     return this.api.post("/api/transcriptions", decamelizeKeys(transcription));
   }
 
   syncSegment(
     segment: Partial<Omit<SegmentType, "audio" | "video" | "target">>
   ) {
+    if (this.offline) return Promise.resolve(null);
     return this.api.post("/api/segments", decamelizeKeys(segment));
   }
 
   syncNote(note: Partial<Omit<NoteType, "segment">>) {
+    if (this.offline) return Promise.resolve(null);
     return this.api.post("/api/notes", decamelizeKeys(note));
   }
 
   deleteNote(id: string) {
+    if (this.offline) return Promise.resolve(null);
     return this.api.delete(`/api/notes/${id}`);
   }
 
   syncRecording(recording: Partial<RecordingType>) {
+    if (this.offline) return Promise.resolve(null);
     if (!recording) return;
 
     return this.api.post("/api/mine/recordings", decamelizeKeys(recording));
   }
 
   deleteRecording(id: string) {
+    if (this.offline) return Promise.resolve(null);
     return this.api.delete(`/api/mine/recordings/${id}`);
   }
 
@@ -332,16 +364,26 @@ export class Client {
     targetId?: string;
     input?: string;
   }): Promise<{ id: number; token: string; region: string }> {
+    if (this.speechTokenProvider) {
+      // Own Azure key: id 0 means "not tracked by the Enjoy server".
+      return this.speechTokenProvider().then(({ token, region }) => ({
+        id: 0,
+        token,
+        region,
+      }));
+    }
     return this.api.post("/api/speech/tokens", decamelizeKeys(params || {}));
   }
 
   consumeSpeechToken(id: number) {
+    if (!id) return Promise.resolve(null);
     return this.api.put(`/api/speech/tokens/${id}`, {
       state: "consumed",
     });
   }
 
   revokeSpeechToken(id: number) {
+    if (!id) return Promise.resolve(null);
     return this.api.put(`/api/speech/tokens/${id}`, {
       state: "revoked",
     });
@@ -350,6 +392,7 @@ export class Client {
   syncPronunciationAssessment(
     pronunciationAssessment: Partial<PronunciationAssessmentType>
   ) {
+    if (this.offline) return Promise.resolve(null);
     if (!pronunciationAssessment) return;
 
     return this.api.post(
@@ -369,6 +412,10 @@ export class Client {
     sourceType?: string;
     nativeLanguage?: string;
   }): Promise<LookupType> {
+    if (this.offline) {
+      // No server-side dictionary cache in local mode; let the AI do the lookup.
+      return Promise.resolve({ meaningOptions: [] } as LookupType);
+    }
     return this.api.post("/api/lookups", decamelizeKeys(params));
   }
 
@@ -380,6 +427,7 @@ export class Client {
       sourceType?: string;
     }
   ): Promise<LookupType> {
+    if (this.offline) return Promise.resolve(null);
     return this.api.put(`/api/lookups/${id}`, decamelizeKeys(params));
   }
 
@@ -621,10 +669,12 @@ export class Client {
   }
 
   syncDocument(document: Partial<DocumentEType>) {
+    if (this.offline) return Promise.resolve(null);
     return this.api.post("/api/mine/documents", decamelizeKeys(document));
   }
 
   deleteDocument(id: string) {
+    if (this.offline) return Promise.resolve(null);
     return this.api.delete(`/api/mine/documents/${id}`);
   }
 
@@ -637,6 +687,9 @@ export class Client {
       translations: TranslationType[];
     } & PagyResponseType
   > {
+    if (this.offline) {
+      return Promise.resolve({ translations: [] } as any);
+    }
     return this.api.get("/api/translations", {
       params: decamelizeKeys(params),
     });
@@ -650,6 +703,7 @@ export class Client {
     translatedLanguage: string;
     engine: string;
   }): Promise<TranslationType> {
+    if (this.offline) return Promise.resolve(null);
     return this.api.post("/api/translations", decamelizeKeys(params));
   }
 }

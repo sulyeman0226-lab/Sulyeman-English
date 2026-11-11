@@ -33,6 +33,7 @@ import {
   ChevronsUpDownIcon,
   LogOutIcon,
   CreditCardIcon,
+  LibraryBigIcon,
 } from "lucide-react";
 import { useLocation, Link, useNavigate } from "react-router-dom";
 import { t } from "i18next";
@@ -141,6 +142,15 @@ export const Sidebar = (props: {
             />
 
             <Separator />
+
+            <SidebarItem
+              href="/books"
+              label={t("books.books")}
+              tooltip={t("books.books")}
+              active={activeTab.startsWith("/books")}
+              Icon={LibraryBigIcon}
+              isCollapsed={isCollapsed}
+            />
 
             <SidebarItem
               href="/audios"

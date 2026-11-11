@@ -64,7 +64,16 @@ type AppSettingsProviderState = {
   setDisplayPreferences?: (display: boolean) => void;
   displayDepositDialog?: boolean;
   setDisplayDepositDialog?: (display: boolean) => void;
+  // Local mode: no Enjoy account / server, use own API keys
+  localMode?: boolean;
+  setLocalMode?: (enabled: boolean) => Promise<void>;
+  loginLocally?: () => Promise<void>;
+  azureSpeech?: AzureSpeechConfigType | null;
+  setAzureSpeech?: (config: AzureSpeechConfigType | null) => Promise<void>;
 };
+
+// The user created when starting in local mode without an Enjoy account.
+export const LOCAL_USER: UserType = { id: "local", name: "Me" };
 
 const EnjoyApp = window.__ENJOY_APP__;
 
@@ -104,6 +113,11 @@ export const AppSettingsProvider = ({
   const [displayDepositDialog, setDisplayDepositDialog] =
     useState<boolean>(false);
   const [displayPreferences, setDisplayPreferences] = useState<boolean>(false);
+  const [localMode, setLocalMode] = useState<boolean>(false);
+  const [localModeLoaded, setLocalModeLoaded] = useState<boolean>(false);
+  const [azureSpeech, setAzureSpeech] = useState<AzureSpeechConfigType | null>(
+    null
+  );
 
   const db = useContext(DbProviderContext);
 
@@ -148,6 +162,44 @@ export const AppSettingsProvider = ({
 
     EnjoyApp.userSettings.set(UserSettingKeyEnum.LEARNING_LANGUAGE, lang);
     setLearningLanguage(lang);
+  };
+
+  const fetchLocalMode = async () => {
+    try {
+      setLocalMode(Boolean(await EnjoyApp.appSettings.getLocalMode()));
+    } finally {
+      setLocalModeLoaded(true);
+    }
+  };
+
+  const setLocalModeHandler = async (enabled: boolean) => {
+    await EnjoyApp.appSettings.setLocalMode(enabled);
+    setLocalMode(enabled);
+    // Reload so every part of the app (including the main process) picks it up
+    EnjoyApp.app.reload();
+  };
+
+  const loginLocally = async () => {
+    await EnjoyApp.appSettings.setLocalMode(true);
+    setLocalMode(true);
+    await EnjoyApp.appSettings.setUser(LOCAL_USER);
+    setUser(LOCAL_USER);
+  };
+
+  const fetchAzureSpeech = async () => {
+    const config = await EnjoyApp.userSettings.get(
+      UserSettingKeyEnum.AZURE_SPEECH
+    );
+    setAzureSpeech(config?.key && config?.region ? config : null);
+  };
+
+  const setAzureSpeechHandler = async (config: AzureSpeechConfigType | null) => {
+    const value =
+      config?.key?.trim() && config?.region?.trim()
+        ? { key: config.key.trim(), region: config.region.trim() }
+        : null;
+    await EnjoyApp.userSettings.set(UserSettingKeyEnum.AZURE_SPEECH, value);
+    setAzureSpeech(value);
   };
 
   const fetchVersion = async () => {
@@ -213,6 +265,7 @@ export const AppSettingsProvider = ({
 
   const createCable = async (token: string) => {
     if (!token) return;
+    if (localMode) return;
 
     const wsUrl = await EnjoyApp.app.wsUrl();
     const consumer = createConsumer(wsUrl + "/cable?token=" + token);
@@ -261,6 +314,8 @@ export const AppSettingsProvider = ({
   };
 
   const refreshAccount = async () => {
+    if (localMode) return;
+
     webApi.me().then((u) => {
       setUser({
         ...user,
@@ -274,6 +329,7 @@ export const AppSettingsProvider = ({
       fetchLanguages();
       fetchVocabularyConfig();
       fetchRecorderConfig();
+      fetchAzureSpeech();
     }
   }, [db.state]);
 
@@ -283,24 +339,44 @@ export const AppSettingsProvider = ({
     fetchLibraryPath();
     fetchProxyConfig();
     fetchApiUrl();
+    fetchLocalMode();
   }, []);
 
   useEffect(() => {
     if (!apiUrl) return;
+    if (!localModeLoaded) return;
 
     setWebApi(
       new Client({
         baseUrl: apiUrl,
         accessToken: user?.accessToken,
         locale: language,
+        offline: localMode,
+        // Use own Azure Speech key for assessment / TTS / transcription
+        speechTokenProvider: azureSpeech
+          ? () =>
+              EnjoyApp.azureSpeech.issueToken(
+                azureSpeech.key,
+                azureSpeech.region
+              )
+          : undefined,
         onError: (err) => {
+          if (localMode) return;
           if (user && user.accessToken && err.status == 401) {
             setUser({ ...user, accessToken: null });
           }
         },
       })
     );
-  }, [user?.accessToken, apiUrl, language]);
+  }, [
+    user?.accessToken,
+    apiUrl,
+    language,
+    localMode,
+    localModeLoaded,
+    azureSpeech?.key,
+    azureSpeech?.region,
+  ]);
 
   useEffect(() => {
     if (!apiUrl) return;
@@ -312,15 +388,22 @@ export const AppSettingsProvider = ({
 
   useEffect(() => {
     if (!webApi) return;
+    if (localMode) return;
     if (ipaMappings && latestVersion) return;
 
-    webApi.config("ipa_mappings").then((mappings) => {
-      if (mappings) setIpaMappings(mappings);
-    });
+    webApi
+      .config("ipa_mappings")
+      .then((mappings) => {
+        if (mappings) setIpaMappings(mappings);
+      })
+      .catch((err) => console.warn(err.message));
 
-    webApi.config("app_version").then((config) => {
-      if (config.version) setLatestVersion(config.version);
-    });
+    webApi
+      .config("app_version")
+      .then((config) => {
+        if (config?.version) setLatestVersion(config.version);
+      })
+      .catch((err) => console.warn(err.message));
   }, [webApi]);
 
   useEffect(() => {
@@ -336,6 +419,11 @@ export const AppSettingsProvider = ({
         const profile = await EnjoyApp.userSettings.get(
           UserSettingKeyEnum.PROFILE
         );
+        if (!profile) {
+          // First start of a local user: nothing in DB yet
+          EnjoyApp.userSettings.set(UserSettingKeyEnum.PROFILE, user);
+          return;
+        }
         setUser(profile);
         EnjoyApp.appSettings.setUser({ id: profile.id, name: profile.name });
       }
@@ -381,6 +469,11 @@ export const AppSettingsProvider = ({
         setDisplayPreferences,
         displayDepositDialog,
         setDisplayDepositDialog,
+        localMode,
+        setLocalMode: setLocalModeHandler,
+        loginLocally,
+        azureSpeech,
+        setAzureSpeech: setAzureSpeechHandler,
       }}
     >
       {children}

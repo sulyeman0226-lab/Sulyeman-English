@@ -65,6 +65,11 @@ const apiUrl = () => {
   return process.env.WEB_API_URL || url || WEB_API_URL;
 };
 
+// Local mode: use the app without the Enjoy server (own API keys only).
+const localMode = (): boolean => {
+  return Boolean(settings.getSync(AppSettingsKeyEnum.LOCAL_MODE));
+};
+
 // scan library directory and get all user data directories
 // the name of user data directory is the user id, and they are all numbers and 8 digits
 const sessions = () => {
@@ -115,11 +120,20 @@ export default {
     ipcMain.handle("app-settings-get-sessions", (_event) => {
       return sessions();
     });
+
+    ipcMain.handle("app-settings-get-local-mode", (_event) => {
+      return localMode();
+    });
+
+    ipcMain.handle("app-settings-set-local-mode", (_event, enabled) => {
+      settings.setSync(AppSettingsKeyEnum.LOCAL_MODE, Boolean(enabled));
+    });
   },
   cachePath,
   libraryPath,
   userDataPath,
   dbPath,
   apiUrl,
+  localMode,
   ...settings,
 };

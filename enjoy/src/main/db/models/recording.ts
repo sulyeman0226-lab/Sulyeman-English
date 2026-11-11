@@ -199,6 +199,7 @@ export class Recording extends Model<Recording> {
 
     const webApi = new Client({
       baseUrl: settings.apiUrl(),
+      offline: settings.localMode(),
       accessToken: (await UserSetting.accessToken()) as string,
       logger,
     });
@@ -293,6 +294,7 @@ export class Recording extends Model<Recording> {
     fs.remove(recording.filePath);
     const webApi = new Client({
       baseUrl: settings.apiUrl(),
+      offline: settings.localMode(),
       accessToken: (await UserSetting.accessToken()) as string,
       logger: log.scope("recording/cleanupFile"),
     });
